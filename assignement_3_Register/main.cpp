@@ -59,8 +59,7 @@ int main(void)
     }
 
     ///////////////////////////////////////////////////////////////////
-
-    RegX.setPermission(0,READ_ONLY);
+    RegX.setPermission(0x01,READ_ONLY);
     ErrorCheck = RegX.setBit(0);
     if(ErrorCheck == OK)
     {

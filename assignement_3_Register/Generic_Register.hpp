@@ -45,7 +45,8 @@ class GenRegister
         ERROR_STATUS    clrBit             (std::uint8_t BitNo);
         ERROR_STATUS    getBit             (std::uint8_t & Result, std::uint8_t BitNo);
         ERROR_STATUS    setPermission      (REGISTER_PERMISSION RegisterPrem = READ_AND_WRITE );
-        ERROR_STATUS    setPermission      (std::uint8_t BitNo ,REGISTER_PERMISSION RegisterPrem);
+        ERROR_STATUS    setPermissionBit   (std::uint8_t BitNo ,REGISTER_PERMISSION RegisterPrem);
+        ERROR_STATUS    setPermission      (T Mask, REGISTER_PERMISSION RegisterPrem);
 };
 
 
@@ -177,13 +178,13 @@ template <class T>
 ERROR_STATUS GenRegister<T>::setPermission(REGISTER_PERMISSION RegisterPrem)
 {
     ERROR_STATUS enumError_Status = OK;
-    Permission[this->Register] = RegisterPrem;
+    Permission = RegisterPrem;
 
     return enumError_Status;
 }
 
 template <class T>
-ERROR_STATUS GenRegister<T>::setPermission(std::uint8_t BitNo, REGISTER_PERMISSION RegisterPrem)
+ERROR_STATUS GenRegister<T>::setPermissionBit(std::uint8_t BitNo, REGISTER_PERMISSION RegisterPrem)
 {
     ERROR_STATUS enumError_Status = OK;
     switch (RegisterPrem)
@@ -207,6 +208,38 @@ ERROR_STATUS GenRegister<T>::setPermission(std::uint8_t BitNo, REGISTER_PERMISSI
         ReservedBits &= ~(1 << BitNo);
         WriteOnlyBits &= ~(1 << BitNo);
         ReadOnlyBits &= ~(1 << BitNo);
+        break;
+
+    }
+
+    return enumError_Status;
+}
+
+template <class T>
+ERROR_STATUS GenRegister<T>::setPermission(T Mask, REGISTER_PERMISSION RegisterPrem)
+{
+    ERROR_STATUS enumError_Status = OK;
+    switch (RegisterPrem)
+    {
+    case READ_ONLY:
+        ReadOnlyBits = Mask;
+        WriteOnlyBits &= ~(Mask);
+        ReservedBits &= ~(Mask);
+        break;
+    case WRITE_ONLY:
+        WriteOnlyBits = (Mask);
+        ReadOnlyBits &= ~(Mask);
+        ReservedBits &= ~(Mask);
+        break;
+    case RESERVED:
+        ReservedBits = (Mask);
+        WriteOnlyBits &= ~(Mask);
+        ReadOnlyBits &= ~(Mask);
+        break;
+    case READ_AND_WRITE:
+        ReservedBits &= ~(Mask);
+        WriteOnlyBits &= ~(Mask);
+        ReadOnlyBits &= ~(Mask);
         break;
 
     }
